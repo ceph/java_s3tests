@@ -16,7 +16,7 @@ public class BucketTest {
 	AmazonS3 svc = utils.getCLI();
 	String prefix = utils.getPrefix();
 
-	@BeforeClass
+	@@AfterMethod
 	public  void tearDownAfterClass() throws Exception {
 		
 		utils.tearDown(svc);	

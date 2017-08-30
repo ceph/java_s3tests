@@ -51,7 +51,7 @@ public class AWS4Test {
 	String prefix = utils.getPrefix();
 	static Properties prop = new Properties();
 	
-	@AfterClass
+	@@AfterMethod
 	public  void tearDownAfterClass() throws Exception {
 		
 		utils.tearDown(svc);	

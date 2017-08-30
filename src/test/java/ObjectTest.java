@@ -15,6 +15,7 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 import com.amazonaws.AmazonClientException;
@@ -58,7 +59,7 @@ public class ObjectTest {
 	AmazonS3 svc = utils.getCLI();
 	String prefix = utils.getPrefix();
 
-	@AfterClass
+	@AfterMethod
 	public  void tearDownAfterClass() throws Exception {
 		
 		utils.tearDown(svc);	
