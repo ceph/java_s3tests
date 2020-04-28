@@ -2151,6 +2151,48 @@ public class ObjectTest {
 		} catch (AmazonServiceException err) {
 			AssertJUnit.assertEquals(err.getErrorCode(), "400 Bad Request");
 		}
+    }
+    
+	@Test(description = "multipart uploads losing data in retry operation, succeeds!")
+	public void testMultipartUploadRetryLosingData() {
+		String bucket_name = utils.getBucketName(prefix);
+		String key = "key1";
+		String filePath = "./data/file.mpg";
+		int fileSize = 23 * 1024 * 1024;
+
+		svc.createBucket(new CreateBucketRequest(bucket_name));
+		utils.createFile(filePath, fileSize);
+
+		List<PartETag> partETags = new ArrayList<PartETag>();
+
+		InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest(bucket_name, key);
+		InitiateMultipartUploadResult initResponse = svc.initiateMultipartUpload(initRequest);
+
+		File file = new File(filePath);
+		long contentLength = file.length();
+		long partSize = 8 * 1024 * 1024;
+
+		//multipart upload with retry
+		long filePosition = 0;
+		for (int i = 1; filePosition < contentLength; i++) {
+			partSize = Math.min(partSize, (contentLength - filePosition));
+			UploadPartRequest uploadRequest = new UploadPartRequest().withBucketName(bucket_name).withKey(key)
+					.withUploadId(initResponse.getUploadId()).withPartNumber(i).withFileOffset(filePosition)
+					.withFile(file).withPartSize(partSize);
+
+			partETags.add((PartETag) svc.uploadPart(uploadRequest).getPartETag());
+			svc.uploadPart(uploadRequest);//Retry upload part
+
+			filePosition += partSize;
+		}
+
+		CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(bucket_name, key,
+				initResponse.getUploadId(), (List<PartETag>) partETags);
+		svc.completeMultipartUpload(compRequest);
+
+		//get metadata
+		ObjectMetadata objectMeta = svc.getObjectMetadata(bucket_name, key);
+		AssertJUnit.assertEquals(fileSize, objectMeta.getContentLength());
 	}
 
 }
