@@ -602,7 +602,7 @@ public class ObjectTest {
 			String bucket_name = utils.getBucketName(prefix);
 			String key = "key1";
 			String content = "echo lima golf";
-			String md5 = " ";
+			String md5 = "";
 
 			svc.createBucket(new CreateBucketRequest(bucket_name));
 
@@ -614,9 +614,10 @@ public class ObjectTest {
 			metadata.setHeader("Content-MD5", md5);
 
 			svc.putObject(new PutObjectRequest(bucket_name, key, is, metadata));
-			AssertJUnit.fail("Expected 400 Bad Request");
+			AssertJUnit.fail("Expected 400 InvalidDigest");
 		} catch (AmazonServiceException err) {
-			AssertJUnit.assertEquals(err.getErrorCode(), "400 Bad Request");
+			AssertJUnit.assertEquals(err.getStatusCode(), 400);
+			AssertJUnit.assertEquals(err.getErrorCode(), "InvalidDigest");
 		}
 	}
 
