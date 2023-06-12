@@ -47,7 +47,7 @@ elif [ -f /etc/fedora-release ]; then
         sudo yum -y install $missing
     fi
 elif [ -f /etc/redhat-release ]; then
-    for package in java-1.8.0-openjdk wget unzip; do
+    for package in java-1.8.0-openjdk java-1.8.0-openjdk-devel wget unzip; do
         if [ "$(rpm -qa $package 2>/dev/null)" == "" ]; then
             missing="${missing:+$missing }$package"
         fi
