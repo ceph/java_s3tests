@@ -12,7 +12,7 @@ The test suite only covers the REST interface and uses [AWS Java SDK ](https://a
 
 Clone the repository
 
-	git clone https://github.com/adamyanova/java_s3tests
+	git clone https://github.com/ceph/java_s3tests
 
 ### Edit Configuration
 
