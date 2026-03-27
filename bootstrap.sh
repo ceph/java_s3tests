@@ -68,7 +68,7 @@ echo " Gradle will be installed under $GRADLEPATH"
 
 # The version is hardcoded on purpose in order to match the 
 # one used for testing in the Ceph test framework Teuthology
-version=6.0.1
+version=9.4.1
 
 if [ ! -d /opt/gradle ]; then
     sudo mkdir ${GRADLEPATH}
