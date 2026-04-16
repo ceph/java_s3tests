@@ -18,7 +18,6 @@ case $i in
     exit
     ;;
     *)
-          # unknown option
     ;;
 esac
 done

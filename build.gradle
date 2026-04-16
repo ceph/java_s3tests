@@ -1,13 +1,3 @@
-apply plugin: 'java'
-apply plugin: 'eclipse'
-
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-
-}
-
 buildscript {
     repositories {
         mavenCentral()
@@ -17,36 +7,58 @@ buildscript {
     }
 }
 
-apply plugin: "io.spring.dependency-management"
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'io.spring.dependency-management'
+
+group = 'org.ceph.rgw'
+version = '1.0-SNAPSHOT'
+
+sourceCompatibility = 21
+targetCompatibility = 21
+
+repositories {
+    mavenCentral()
+}
 
 dependencyManagement {
     imports {
-        mavenBom 'com.amazonaws:aws-java-sdk-bom:1.11.549'
+        // New v2 BOM 
+        mavenBom 'software.amazon.awssdk:bom:2.25.15'
     }
 }
 
 dependencies {
+  
+    implementation 'software.amazon.awssdk:s3'
+    implementation 'software.amazon.awssdk:sqs'
+    implementation 'software.amazon.awssdk:auth'
+    implementation 'software.amazon.awssdk:apache-client'
 
-	compile 'com.amazonaws:aws-java-sdk-core:1.11.549'
-    compile 'com.amazonaws:aws-java-sdk:1.11.549'
-    compile 'com.amazonaws:aws-java-sdk-s3:1.11.549'
-    compile 'com.amazonaws:aws-java-sdk-sqs'
+    implementation 'software.amazon.awssdk:s3-transfer-manager'
+    implementation 'software.amazon.awssdk:netty-nio-client'
+    implementation 'software.amazon.awssdk.crt:aws-crt:0.29.11'
 
-    compile 'org.seleniumhq.selenium:selenium-server:2.44.0'
-    compile 'org.testng:testng:6.1.1'
-
-    compile group: 'log4j', name:'log4j', version:'1.2.17'
+    implementation 'org.seleniumhq.selenium:selenium-server:2.44.0'
+    implementation 'org.testng:testng:7.7.0'
+    implementation 'log4j:log4j:1.2.17'
+    
+    testImplementation 'org.assertj:assertj-core:3.24.2'
 }
 
 test {
     useTestNG() {
-        suites 'testng.xml' 
+        if (filter.includePatterns.isEmpty()) {
+            suites 'testng.xml'
+        }
     }
     
+    scanForTestClasses = false 
+
     testLogging {
-        events "PASSED", "STARTED", "FAILED", "SKIPPED"
         showStandardStreams = true
         events "started", "passed", "skipped", "failed", "standardOut", "standardError"
+        exceptionFormat "full"
         
         debug {
             events "started", "passed", "skipped", "failed", "standardOut", "standardError"
@@ -54,15 +66,13 @@ test {
         }
         info.events = debug.events
         info.exceptionFormat = debug.exceptionFormat
+    }
 
-        afterSuite { desc, result ->
-            if (!desc.parent) { 
-                def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
-                def startItem = '|  ', endItem = '  |'
-                def repeatLength = startItem.length() + output.length() + endItem.length()
-                println('\n' + ('-' * repeatLength) + '\n' + startItem + output + endItem + '\n' + ('-' * repeatLength))
-            }
+    afterSuite { desc, result ->
+        if (!desc.parent) { 
+            def output = "Results: ${result.resultType} (${result.testCount} tests, ${result.successfulTestCount} successes, ${result.failedTestCount} failures, ${result.skippedTestCount} skipped)"
+            def border = '-' * (output.length() + 4)
+            println("\n${border}\n| ${output} |\n${border}")
         }
     }
 }
-
